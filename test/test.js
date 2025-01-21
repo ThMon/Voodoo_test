@@ -37,6 +37,73 @@ describe('POST /api/games', function () {
 });
 
 /**
+ * Testing search games endpoint
+ */
+describe('POST /api/games/search', function () {
+    
+    it('respond with json containing all games in search', function (done) {
+        let goodSearchQuery = {
+            name: "App",
+            platform: "ios"
+        }
+        request(app)
+            .post('/api/games/search')
+            .send(goodSearchQuery)
+            .set('Accept', 'application/json')
+            .expect('Content-Type', /json/)
+            .expect(200)
+            .end((err, result) => {
+                if (err) return done(err);
+                assert.strictEqual(result.body.length, 1);
+                assert.strictEqual(result.body[0].publisherId, '1234567890');
+                assert.strictEqual(result.body[0].name, 'Test App');
+                assert.strictEqual(result.body[0].platform, 'ios');
+                assert.strictEqual(result.body[0].storeId, '1234');
+                assert.strictEqual(result.body[0].bundleId, 'test.bundle.id');
+                assert.strictEqual(result.body[0].appVersion, '1.0.0');
+                assert.strictEqual(result.body[0].isPublished, true);
+                done();
+            });
+    });
+
+    it('respond with json containing no games in search', function (done) {
+        let goodSearchQuery = {
+            name: "App",
+            platform: "android"
+        }
+        request(app)
+            .post('/api/games/search')
+            .send(goodSearchQuery)
+            .set('Accept', 'application/json')
+            .expect('Content-Type', /json/)
+            .expect(200)
+            .end((err, result) => {
+                if (err) return done(err);
+                assert.strictEqual(result.body.length, 0);
+                done();
+            });
+    });
+
+    it('respond with json containing no games in search', function (done) {
+        let goodSearchQuery = {
+            name: "Azerty",
+            platform: "ios"
+        }
+        request(app)
+            .post('/api/games/search')
+            .send(goodSearchQuery)
+            .set('Accept', 'application/json')
+            .expect('Content-Type', /json/)
+            .expect(200)
+            .end((err, result) => {
+                if (err) return done(err);
+                assert.strictEqual(result.body.length, 0);
+                done();
+            });
+    });
+});
+
+/**
  * Testing get all games endpoint
  */
 describe('GET /api/games', function () {
@@ -118,6 +185,25 @@ describe('DELETE /api/games/1', function () {
  */
 describe('GET /api/games', function () {
     it('respond with json containing no games', function (done) {
+        request(app)
+            .get('/api/games')
+            .set('Accept', 'application/json')
+            .expect('Content-Type', /json/)
+            .expect(200)
+            .end((err, result) => {
+                if (err) return done(err);
+                assert.strictEqual(result.body.length, 0);
+                done();
+            });
+    });
+});
+
+
+/**
+ * Testing get all games endpoint
+ */
+describe('POST /api/games/search', function () {
+    it('respond with json containing all games', function (done) {
         request(app)
             .get('/api/games')
             .set('Accept', 'application/json')

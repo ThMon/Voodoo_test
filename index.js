@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const db = require('./models');
+const { Op } = require('sequelize');
 
 const app = express();
 
@@ -50,6 +51,31 @@ app.put('/api/games/:id', (req, res) => {
         });
     });
 });
+
+app.post('/api/games/search', (req, res) => {
+  const {name, platform} = req.body;
+  console.log('payload', {name, platform})
+
+  const whereClause = {
+    platform: platform?.trim() ? platform : { [Op.or]: ['ios', 'android'] },
+  };
+
+  if (name?.trim()) {
+    whereClause.name = { [Op.like]: `%${name}%` };
+  }
+
+  db.Game.findAll({
+    where: whereClause
+  })
+  .then(games => {
+    console.log("games",games)
+    res.send(games)
+  })
+  .catch((err) => {
+    console.log('***There was an error querying games', JSON.stringify(err));
+    return res.send(err);
+  });
+})
 
 
 app.listen(3000, () => {
