@@ -63,8 +63,37 @@ Many other applications at Voodoo will use consume this API.
 We are planning to put this project in production. According to you, what are the missing pieces to make this project production ready? 
 Please elaborate an action plan.
 
+#### Reponse 1:
+
+Tout d'abord, au niveau architecture, je choisirais soit une clean archi;, soit une archi hexagonale. 
+
+L'idée est de séparer :
+-  l'infrastructure (intéraction avec l'exterieur, les librairie, repertoire bdd, les routes express, etc...) afin de ne pas dépendre d'une librairie dans tout le projet.
+- Le domaine pour gérer la logique métier en pure Node.js (Entity, Model, Services...)
+- Et les use-cases en pur Node.js aussi.
+
+En utilisant cette architecture nous pouvons ajouter des tests unitaires qui permettent de tester de manière efficace nos use-case ainsi que nos services dans le domaine (il faut mocker les services de l'infra). Pour le moment nous n'avons que des tests d'intégration qui couvre les end-points. On peut se faire plaisir avec des tests de performances.
+
+On peut ajouter un CI/CD pour rejouer les lint, build, tests unitaires, etc... lors d'une PR.
+
+Il serait très sympathique d'avoir plusieurs environnements :
+- Dev qui permet au dev de tester et tout casser
+- Staging une branche ISO à la branche
+- Prod bah la prod 
+
+On pousse sur dev pour vérifier que tout fonctionne si nous sommes satisfait on fait une release sur staging. Si dans le meilleur des mondes staging tourne parfaitement alors on release vers la prod
+
 #### Question 2:
 Let's pretend our data team is now delivering new files every day into the S3 bucket, and our service needs to ingest those files
 every day through the populate API. Could you describe a suitable solution to automate this? Feel free to propose architectural changes.
 
+#### Reponse 2:
+
+Nous avons plusieurs solutions à ce sujet.
+
+Nous pourrions modifier notre route pour qu'elle devienne une requête POST prenant en body un tableau d'URL de fichiers dans le bucket. Nous stockerions également les URL des fichiers déjà importés. (Il y a déjà une impossibilité de doublon de game sur la route grâce à la comparaison de l'app_id)
+
+Nous pourrions créer une notification S3 à chaque ajout de fichier, laquelle déclencherait une lambda qui appellerait ensuite notre route POST /games/populate avec, en body, un tableau des URL des fichiers ajoutés au bucket.
+
+Nous pourrions également mettre en place un CRON directement sur l'API, qui, chaque nuit à une heure précise, interrogerait le bucket AWS S3 pour récupérer les URL des fichiers. Nous comparerions alors ces URL avec celles déjà enregistrées chez nous, et celles qui n'existent pas encore seraient ajoutées via une requête API ou appel du service si dans le mono-repo.
 
