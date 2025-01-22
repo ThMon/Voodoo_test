@@ -40,7 +40,6 @@ describe('POST /api/games', function () {
  * Testing search games endpoint
  */
 describe('POST /api/games/search', function () {
-    
     it('respond with json containing all games in search', function (done) {
         let goodSearchQuery = {
             name: "App",
@@ -200,20 +199,19 @@ describe('GET /api/games', function () {
 
 
 /**
- * Testing get all games endpoint
+ * Testing get populate endpoint
  */
-describe('POST /api/games/search', function () {
-    it('respond with json containing all games', function (done) {
+describe('GET /api/games/populate', function () {
+    it('respond with json containing no games', function (done) {
         request(app)
-            .get('/api/games')
+            .get('/api/games/populate')
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/)
-            .expect(200)
+            .expect(201)
             .end((err, result) => {
                 if (err) return done(err);
-                assert.strictEqual(result.body.length, 0);
+                assert.strictEqual(result.body.length, 100);
                 done();
             });
     });
 });
-

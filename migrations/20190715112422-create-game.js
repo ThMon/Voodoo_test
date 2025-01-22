@@ -18,6 +18,7 @@ module.exports = {
     },
     storeId: {
       type: Sequelize.STRING,
+      unique: true,
     },
     bundleId: {
       type: Sequelize.STRING,
